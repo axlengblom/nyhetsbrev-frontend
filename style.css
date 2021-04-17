@@ -24,12 +24,13 @@ header {
 }
 
 .main button {
-  margin: 10px;
+  margin: 10px auto;
   padding: 20px;
   font-size: x-large;
   border: none;
   border-radius: 10px;
   background-color: coral;
+  width: 255px;
 }
 
 .main button:hover {
@@ -38,9 +39,10 @@ header {
 }
 
 .main input {
-  margin: 10px;
+  margin: 10px auto;
   font-size: x-large;
   text-align: center;
+  width: 255px;
 }
 
 input[type="checkbox"] {
