@@ -3,6 +3,6 @@ Emails:
 
 axel1@gmail.com - axel11@gmail.com
 
-passwords:
+Passwords:
 
-Jordgubbe
+Jordgubbe (case-sensitive)
