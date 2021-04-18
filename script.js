@@ -94,7 +94,6 @@ logInPageBtn.addEventListener("click", () => {
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
       let userInfo = data;
       if (userInfo == false) {
         main.innerHTML = "";
@@ -105,7 +104,6 @@ logInPageBtn.addEventListener("click", () => {
         );
         main.appendChild(signUpBtn);
       } else {
-        console.log(userInfo);
         loggedInUserId = userInfo[0].userid;
 
         main.innerHTML = "";
@@ -173,9 +171,6 @@ create.addEventListener("click", () => {
 });
 
 saveChangesBtn.addEventListener("click", () => {
-  console.log(document.getElementById("changeSubscription").checked);
-  console.log(loggedInUserId);
-
   let subUpdate = {
     subscribed: document.getElementById("changeSubscription").checked,
     userid: loggedInUserId,
