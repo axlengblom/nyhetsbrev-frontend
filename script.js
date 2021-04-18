@@ -8,10 +8,12 @@ let check = document.createElement("input");
 let checkLabel = document.createElement("label");
 let create = document.createElement("button");
 let saveChangesBtn = document.createElement("button");
+let logOutBtn = document.createElement("button");
 
 let loggedInUserId = "";
 let loggedInUserInfo = "";
 
+logOutBtn.innerHTML = "Logga Ut";
 signUpBtn.innerHTML = "Skapa Konto";
 logInBtn.innerHTML = "Logga In";
 logInPageBtn.innerHTML = "Logga In";
@@ -48,6 +50,23 @@ let logInPage = () => {
   main.appendChild(logInPageBtn);
 };
 
+let validateEmail = (inputText) => {
+  var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  if (inputText.match(mailformat)) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+let validatePassword = (inputText) => {
+  if (inputText.length < 8) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 frontPage();
 
 signUpBtn.addEventListener("click", () => {
@@ -75,6 +94,7 @@ logInPageBtn.addEventListener("click", () => {
   })
     .then((res) => res.json())
     .then((data) => {
+      console.log(data);
       let userInfo = data;
       if (userInfo == false) {
         main.innerHTML = "";
@@ -98,42 +118,58 @@ logInPageBtn.addEventListener("click", () => {
           } ><br></ul>`
         );
         main.appendChild(saveChangesBtn);
+        main.appendChild(logOutBtn);
       }
     });
 });
 
 create.addEventListener("click", () => {
-  let newUser = {
-    email: email.value,
-    passWord: passWord.value,
-    subscribed: check.checked,
-    userid: "",
-  };
+  let validatedEmail = validateEmail(email.value);
+  let validatedPassword = validatePassword(passWord.value);
 
-  fetch("http://localhost:3000/users/new-user", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newUser),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      let alreadySubscribed = data;
-      if (alreadySubscribed) {
-        main.insertAdjacentHTML(
-          "afterbegin",
-          "<h3>Det finns redan ett konto med den email-adressen, testa en annan</h3>"
-        );
-      } else {
-        main.innerHTML = "";
-        main.insertAdjacentHTML(
-          "afterbegin",
-          "<h3>Konto skapat, logga in för att ändra inställningar</h3>"
-        );
-        main.appendChild(logInBtn);
-      }
-    });
+  if (validatedEmail && validatedPassword) {
+    let newUser = {
+      email: email.value,
+      passWord: passWord.value,
+      subscribed: check.checked,
+      userid: "",
+    };
+
+    fetch("http://localhost:3000/users/new-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUser),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        let alreadySubscribed = data;
+        if (alreadySubscribed) {
+          main.insertAdjacentHTML(
+            "afterbegin",
+            "<h3>Det finns redan ett konto med den email-adressen, testa en annan</h3>"
+          );
+        } else {
+          main.innerHTML = "";
+          main.insertAdjacentHTML(
+            "afterbegin",
+            "<h3>Konto skapat, logga in för att ändra inställningar</h3>"
+          );
+          main.appendChild(logInBtn);
+        }
+      });
+  } else if (!validatedEmail) {
+    main.insertAdjacentHTML(
+      "afterbegin",
+      "<h3>Du skrev en felaktig email, försök med en annan.</h3>"
+    );
+  } else if (!validatedPassword) {
+    main.insertAdjacentHTML(
+      "afterbegin",
+      "<h3>Lösenordet måste vara minst 8 tecken långt.</h3>"
+    );
+  }
 });
 
 saveChangesBtn.addEventListener("click", () => {
@@ -153,7 +189,11 @@ saveChangesBtn.addEventListener("click", () => {
     body: JSON.stringify(subUpdate),
   })
     .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-    });
+    .then((data) => {});
+  main.insertAdjacentHTML("afterbegin", "<h3>Ändringar sparade</h3>");
+});
+
+logOutBtn.addEventListener("click", () => {
+  main.innerHTML = "";
+  frontPage();
 });
