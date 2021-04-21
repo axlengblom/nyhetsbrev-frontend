@@ -120,7 +120,7 @@ logInPageBtn.addEventListener("click", () => {
     passWord: passWord.value,
   };
 
-  fetch("http://localhost:3000/users/log-in", {
+  fetch("https://axelengblom-nyhetsbrev.herokuapp.com//users/log-in", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -150,13 +150,16 @@ logInPageBtn.addEventListener("click", () => {
 myPageBtn.addEventListener("click", () => {
   loggedInUserId = { userid: localStorage.getItem("userid") };
 
-  fetch("http://localhost:3000/users/validate-logged-in-user", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(loggedInUserId),
-  })
+  fetch(
+    "https://axelengblom-nyhetsbrev.herokuapp.com//users/validate-logged-in-user",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loggedInUserId),
+    }
+  )
     .then((res) => res.json())
     .then((data) => {
       main.innerHTML = "";
@@ -176,7 +179,7 @@ create.addEventListener("click", () => {
       userid: "",
     };
 
-    fetch("http://localhost:3000/users/new-user", {
+    fetch("https://axelengblom-nyhetsbrev.herokuapp.com//users/new-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -228,7 +231,7 @@ saveChangesBtn.addEventListener("click", () => {
     userid: loggedInUserId,
   };
 
-  fetch("http://localhost:3000/users/update-sub", {
+  fetch("https://axelengblom-nyhetsbrev.herokuapp.com//users/update-sub", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
