@@ -120,7 +120,7 @@ logInPageBtn.addEventListener("click", () => {
     passWord: passWord.value,
   };
 
-  fetch("https://axelengblom-nyhetsbrev.herokuapp.com//users/log-in", {
+  fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/log-in", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -151,7 +151,7 @@ myPageBtn.addEventListener("click", () => {
   loggedInUserId = { userid: localStorage.getItem("userid") };
 
   fetch(
-    "https://axelengblom-nyhetsbrev.herokuapp.com//users/validate-logged-in-user",
+    "https://axelengblom-nyhetsbrev.herokuapp.com/users/validate-logged-in-user",
     {
       method: "POST",
       headers: {
@@ -179,7 +179,7 @@ create.addEventListener("click", () => {
       userid: "",
     };
 
-    fetch("https://axelengblom-nyhetsbrev.herokuapp.com//users/new-user", {
+    fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/new-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -231,7 +231,7 @@ saveChangesBtn.addEventListener("click", () => {
     userid: loggedInUserId,
   };
 
-  fetch("https://axelengblom-nyhetsbrev.herokuapp.com//users/update-sub", {
+  fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/update-sub", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
