@@ -1,7 +1,7 @@
 # nyhetsbrev-frontend
 Emails:
 
-axel1@gmail.com - axel11@gmail.com
+axel2@gmail.com - axel11@gmail.com
 
 Passwords:
 
