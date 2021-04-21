@@ -9,14 +9,23 @@ let checkLabel = document.createElement("label");
 let create = document.createElement("button");
 let saveChangesBtn = document.createElement("button");
 let logOutBtn = document.createElement("button");
+let myPageBtn = document.createElement("button");
+let frontPageReturnBtn = document.createElement("button");
 
 let loggedInUserId = "";
 let loggedInUserInfo = "";
+
+let notValidEmail = false;
+let notValidPassword = false;
 
 logOutBtn.innerHTML = "Logga Ut";
 signUpBtn.innerHTML = "Skapa Konto";
 logInBtn.innerHTML = "Logga In";
 logInPageBtn.innerHTML = "Logga In";
+
+myPageBtn.innerHTML = "Min Sida";
+
+frontPageReturnBtn.innerHTML = "Startsidan";
 
 saveChangesBtn.innerHTML = "Spara Ändringar";
 
@@ -31,9 +40,17 @@ create.innerHTML = "Skapa Konto";
 check.checked = true;
 check.class = "checkbox";
 
+let userID = "";
+let isLoggedIn = localStorage.getItem("userid");
+
 let frontPage = () => {
   main.appendChild(signUpBtn);
   main.appendChild(logInBtn);
+};
+
+let frontPageLoggedIn = () => {
+  main.appendChild(signUpBtn);
+  main.appendChild(myPageBtn);
 };
 
 let singUpPage = () => {
@@ -49,6 +66,12 @@ let logInPage = () => {
   main.appendChild(passWord);
   main.appendChild(logInPageBtn);
 };
+
+if (isLoggedIn) {
+  frontPageLoggedIn();
+} else {
+  frontPage();
+}
 
 let validateEmail = (inputText) => {
   var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -67,7 +90,19 @@ let validatePassword = (inputText) => {
   }
 };
 
-frontPage();
+let loggedInPage = (userInfo) => {
+  main.insertAdjacentHTML(
+    "beforeend",
+    `<ul><li>Email-adress: ${userInfo.email}</li><li>Prenumerant: ${
+      userInfo.subscribed ? "Ja" : "Nej"
+    }</li><li>Ändra prenumerations Status</li><input id=changeSubscription type ="checkbox" ${
+      userInfo.subscribed ? "Checked" : null
+    } ><br></ul>`
+  );
+  main.appendChild(saveChangesBtn);
+  main.appendChild(logOutBtn);
+  main.appendChild(frontPageReturnBtn);
+};
 
 signUpBtn.addEventListener("click", () => {
   main.innerHTML = "";
@@ -85,7 +120,7 @@ logInPageBtn.addEventListener("click", () => {
     passWord: passWord.value,
   };
 
-  fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/log-in", {
+  fetch("http://localhost:3000/users/log-in", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -94,8 +129,9 @@ logInPageBtn.addEventListener("click", () => {
   })
     .then((res) => res.json())
     .then((data) => {
-      let userInfo = data;
-      if (userInfo == false) {
+      userID = data[0].userid;
+
+      if (data[0] == false) {
         main.innerHTML = "";
         logInPage();
         main.insertAdjacentHTML(
@@ -104,20 +140,27 @@ logInPageBtn.addEventListener("click", () => {
         );
         main.appendChild(signUpBtn);
       } else {
-        loggedInUserId = userInfo[0].userid;
-
+        localStorage.setItem("userid", userID);
         main.innerHTML = "";
-        main.insertAdjacentHTML(
-          "beforeend",
-          `<ul><li>Email-adress: ${userInfo[0].email}</li><li>Prenumerant: ${
-            userInfo[0].subscribed ? "Ja" : "Nej"
-          }</li><li>Ändra prenumerations Status</li><input id=changeSubscription type ="checkbox" ${
-            userInfo[0].subscribed ? "Checked" : null
-          } ><br></ul>`
-        );
-        main.appendChild(saveChangesBtn);
-        main.appendChild(logOutBtn);
+        loggedInPage(data[0]);
       }
+    });
+});
+
+myPageBtn.addEventListener("click", () => {
+  loggedInUserId = { userid: localStorage.getItem("userid") };
+
+  fetch("http://localhost:3000/users/validate-logged-in-user", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(loggedInUserId),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      main.innerHTML = "";
+      loggedInPage(data[0]);
     });
 });
 
@@ -133,7 +176,7 @@ create.addEventListener("click", () => {
       userid: "",
     };
 
-    fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/new-user", {
+    fetch("http://localhost:3000/users/new-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -142,8 +185,9 @@ create.addEventListener("click", () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        let userInfo = data;
         let alreadySubscribed = data;
-        if (alreadySubscribed) {
+        if (!alreadySubscribed) {
           main.insertAdjacentHTML(
             "afterbegin",
             "<h3>Det finns redan ett konto med den email-adressen, testa en annan</h3>"
@@ -154,29 +198,37 @@ create.addEventListener("click", () => {
             "afterbegin",
             "<h3>Konto skapat, logga in för att ändra inställningar</h3>"
           );
-          main.appendChild(logInBtn);
+          localStorage.setItem("userid", userInfo.userid);
+          loggedInPage(userInfo);
         }
       });
   } else if (!validatedEmail) {
+    main.innerHTML = "";
     main.insertAdjacentHTML(
       "afterbegin",
       "<h3>Du skrev en felaktig email, försök med en annan.</h3>"
     );
+    singUpPage();
   } else if (!validatedPassword) {
+    main.innerHTML = "";
+
     main.insertAdjacentHTML(
       "afterbegin",
       "<h3>Lösenordet måste vara minst 8 tecken långt.</h3>"
     );
+    singUpPage();
   }
 });
 
 saveChangesBtn.addEventListener("click", () => {
+  loggedInUserId = localStorage.getItem("userid");
+
   let subUpdate = {
     subscribed: document.getElementById("changeSubscription").checked,
     userid: loggedInUserId,
   };
 
-  fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/update-sub", {
+  fetch("http://localhost:3000/users/update-sub", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -184,11 +236,19 @@ saveChangesBtn.addEventListener("click", () => {
     body: JSON.stringify(subUpdate),
   })
     .then((res) => res.json())
-    .then((data) => {});
-  main.insertAdjacentHTML("afterbegin", "<h3>Ändringar sparade</h3>");
+    .then((data) => {
+      main.innerHTML = "";
+      loggedInPage(data[0]);
+    });
 });
 
 logOutBtn.addEventListener("click", () => {
   main.innerHTML = "";
+  localStorage.clear();
   frontPage();
+});
+
+frontPageReturnBtn.addEventListener("click", () => {
+  main.innerHTML = "";
+  frontPageLoggedIn();
 });
