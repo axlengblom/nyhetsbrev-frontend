@@ -7,22 +7,4 @@ Passwords:
 
 Jordgubbe (case-sensitive)
 
-Modules Used :
 
-Express
-
-Mongoose
-
-uuid
-
-nodemon
-
-bcrypt
-
-cookie-parse
-
-cors
-
-debug
-
-morgan
