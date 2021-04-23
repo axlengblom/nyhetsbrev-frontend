@@ -1,10 +1,12 @@
 # nyhetsbrev-frontend
+Test Accounts
+
 Emails:
 
-axel2@gmail.com - axel11@gmail.com
+axel1@mail.com - axel9@mail.com
 
 Passwords:
 
-Jordgubbe (case-sensitive)
+jordgubbe
 
 
