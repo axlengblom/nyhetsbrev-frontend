@@ -12,23 +12,22 @@ let logOutBtn = document.createElement("button");
 let myPageBtn = document.createElement("button");
 let frontPageReturnBtn = document.createElement("button");
 
+fetchUrl = "http://localhost:3000";
+
 let loggedInUserId = "";
 let loggedInUserInfo = "";
 
 let notValidEmail = false;
 let notValidPassword = false;
 
+//giving all elements their settings
 logOutBtn.innerHTML = "Logga Ut";
 signUpBtn.innerHTML = "Skapa Konto";
 logInBtn.innerHTML = "Logga In";
 logInPageBtn.innerHTML = "Logga In";
-
 myPageBtn.innerHTML = "Min Sida";
-
 frontPageReturnBtn.innerHTML = "Startsidan";
-
 saveChangesBtn.innerHTML = "Spara Ändringar";
-
 passWord.placeholder = "Password";
 passWord.type = "password";
 email.placeholder = "Email Adress";
@@ -43,6 +42,7 @@ check.class = "checkbox";
 let userID = "";
 let isLoggedIn = localStorage.getItem("userid");
 
+//functions for the pages to make it easier to create the pages when they are needed.
 let frontPage = () => {
   main.appendChild(signUpBtn);
   main.appendChild(logInBtn);
@@ -67,29 +67,6 @@ let logInPage = () => {
   main.appendChild(logInPageBtn);
 };
 
-if (isLoggedIn) {
-  frontPageLoggedIn();
-} else {
-  frontPage();
-}
-
-let validateEmail = (inputText) => {
-  var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-  if (inputText.match(mailformat)) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-let validatePassword = (inputText) => {
-  if (inputText.length < 8) {
-    return false;
-  } else {
-    return true;
-  }
-};
-
 let loggedInPage = (userInfo) => {
   main.insertAdjacentHTML(
     "beforeend",
@@ -104,6 +81,31 @@ let loggedInPage = (userInfo) => {
   main.appendChild(frontPageReturnBtn);
 };
 
+//checks if there is a logged in user in localstorage
+if (isLoggedIn) {
+  frontPageLoggedIn();
+} else {
+  frontPage();
+}
+
+//validates the email so that it includes all the neccesary parts of an email.
+let validateEmail = (inputText) => {
+  var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  if (inputText.match(mailformat)) {
+    return true;
+  } else {
+    return false;
+  }
+};
+// sees if the password is shorter than 8 characters.
+let validatePassword = (inputText) => {
+  if (inputText.length < 8) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 signUpBtn.addEventListener("click", () => {
   main.innerHTML = "";
   singUpPage();
@@ -114,13 +116,14 @@ logInBtn.addEventListener("click", () => {
   logInPage();
 });
 
+//sends the entered information to the server and logs in if the information is correct.
 logInPageBtn.addEventListener("click", () => {
   let userLogIn = {
     email: email.value,
     passWord: passWord.value,
   };
 
-  fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/log-in", {
+  fetch(fetchUrl + "/users/log-in", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -129,9 +132,9 @@ logInPageBtn.addEventListener("click", () => {
   })
     .then((res) => res.json())
     .then((data) => {
-      userID = data[0].userid;
+      console.log(data);
 
-      if (data[0] == false) {
+      if (data == false) {
         main.innerHTML = "";
         logInPage();
         main.insertAdjacentHTML(
@@ -140,6 +143,7 @@ logInPageBtn.addEventListener("click", () => {
         );
         main.appendChild(signUpBtn);
       } else {
+        userID = data[0].userid;
         localStorage.setItem("userid", userID);
         main.innerHTML = "";
         loggedInPage(data[0]);
@@ -147,19 +151,17 @@ logInPageBtn.addEventListener("click", () => {
     });
 });
 
+//collets the information from the server and displays it for the user
 myPageBtn.addEventListener("click", () => {
   loggedInUserId = { userid: localStorage.getItem("userid") };
 
-  fetch(
-    "https://axelengblom-nyhetsbrev.herokuapp.com/users/validate-logged-in-user",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(loggedInUserId),
-    }
-  )
+  fetch(fetchUrl + "/users/validate-logged-in-user", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(loggedInUserId),
+  })
     .then((res) => res.json())
     .then((data) => {
       main.innerHTML = "";
@@ -167,6 +169,7 @@ myPageBtn.addEventListener("click", () => {
     });
 });
 
+//sends the entered information to the server, and creates a new account if there isnt already a user witht the same email.
 create.addEventListener("click", () => {
   let validatedEmail = validateEmail(email.value);
   let validatedPassword = validatePassword(passWord.value);
@@ -179,7 +182,7 @@ create.addEventListener("click", () => {
       userid: "",
     };
 
-    fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/new-user", {
+    fetch(fetchUrl + "/users/new-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -223,6 +226,7 @@ create.addEventListener("click", () => {
   }
 });
 
+//sends the changes to the server and returns a new page with the new information.
 saveChangesBtn.addEventListener("click", () => {
   loggedInUserId = localStorage.getItem("userid");
 
@@ -231,7 +235,7 @@ saveChangesBtn.addEventListener("click", () => {
     userid: loggedInUserId,
   };
 
-  fetch("https://axelengblom-nyhetsbrev.herokuapp.com/users/update-sub", {
+  fetch(fetchUrl + "/users/update-sub", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -245,12 +249,14 @@ saveChangesBtn.addEventListener("click", () => {
     });
 });
 
+//logs out
 logOutBtn.addEventListener("click", () => {
   main.innerHTML = "";
   localStorage.clear();
   frontPage();
 });
 
+//returns to front page without logging out
 frontPageReturnBtn.addEventListener("click", () => {
   main.innerHTML = "";
   frontPageLoggedIn();
