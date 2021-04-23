@@ -12,7 +12,7 @@ let logOutBtn = document.createElement("button");
 let myPageBtn = document.createElement("button");
 let frontPageReturnBtn = document.createElement("button");
 
-fetchUrl = "http://localhost:3000";
+fetchUrl = "https://axelengblom-nyhetsbrev.herokuapp.com";
 
 let loggedInUserId = "";
 let loggedInUserInfo = "";
